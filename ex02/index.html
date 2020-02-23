@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+ 	<meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="http://localhost/ex02/style.css">
+    <script>
+        email_list = new Array("직접 입력", "naver.com", "daum.net", "gmail.com");
+        p_list = new Array("02","051","052","053","054","055");
+        hp_list = new Array("010", "011", "016", "017");
+
+        function get_list(list){
+            for(var i = 0; i < list.length; i++){
+                document.write('<<option value="'+list[i]+'">'+list[i]+'</option>');
+            }
+        }
+    </script>
+</head>
+<body>
+    <article>
+        <h2>회원가입</h2>
+        <form id="frm" name='frm' action='form.php' method="post">
+        <div class="form_group">
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>아이디</div>
+                <div class="element"><input id="id" name='id' type="text" maxlength=20></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>패스워드</div>
+                <div class="element"><input id="pw" name='pw' type="password" maxlength=20><span class="message"> 영문, 숫자, 특수문자(!@#$%^&) 3~20자 입력 가능.</span></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>패스워드 확인</div>
+                <div class="element"><input id="pwc" type="password" maxlength=20><span class="warning" id="warning_pwc"></span></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>이메일</div>
+                <div class="element"><input id="mail_id" name='mail_id' type="text" maxlength=20>@<input id="mail_domain" name="mail_domain" type="text" maxlength=20> <select id="mail_domain_select"><script>get_list(email_list);</script></select></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>전화번호</div>
+                <div class="element"><select id="p0" name="p0"><script>get_list(p_list);</script></select> - <input id="p1" name="p1" type="text" class="phoneNumber" maxlength=3> - <input id="p2" name="p2" type="text" class="phoneNumber" maxlength=4></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>핸드폰번호</div>
+                <div class="element"><select id="hp0" name="hp0"><script>get_list(hp_list);</script></select> - <input id="hp1" name="hp1" type="text" class="phoneNumber" maxlength=4> - <input id="hp2" name="hp2" type="text" class="phoneNumber" maxlength=4></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label">자기소개</div>
+                <div class="element"><textarea id='txtarea' name='txtarea' rows=4 cols=50 maxlength=100>잘 부탁드립니다.</textarea></div>
+            </div>
+            <div class="message"><span class="red">*</span>표시는 필수 입력사항입니다.</div><br>
+            <input id="submitbtn" type="button" class="button" value="확인"/>
+        </div>
+        </form>
+    </article>
+
+    <script>
+        document.getElementById("mail_domain_select").addEventListener("change",function(){
+                domain = document.getElementById("mail_domain");
+                select = document.getElementById("mail_domain_select");
+
+                if(select.value == "직접 입력"){
+                    domain.value="";
+                    domain.disabled = false;
+                }else{
+                    domain.value=select.value;
+                    domain.disabled = true;
+                }
+            })
+
+        must_list = new Array("id", "pw", "pwc", "mail_id", "mail_domain", "p0", "p1", "p2", "hp0", "hp1", "hp2");
+        document.getElementById("submitbtn").addEventListener("click",function(){
+            var dict = {};
+            for(var i = 0; i < must_list.length; i++){
+                tmp = document.getElementById(must_list[i])
+                if(tmp.value.length==0){
+                    alert("필수 입력사항을 모두 입력해주세요.");
+                    return tmp.focus();
+                }
+                dict[must_list[i]] = tmp;
+            }
+
+            var check_id = /^[a-z0-9]*$/
+            var check_pw = /^[a-zA-Z0-9!@#$%^&]*$/
+            var check_emailId = /^[a-zA-Z0-9\.]*$/
+            var check_num = /^[0-9]*$/
+            var check_emailDomain = /^[a-z0-9]*\.[a-z]*[\.[a-z]*]*$/
+
+            if(!check_id.test(dict['id'].value)){
+                alert("아이디는 영문 소문자 및 숫자만 입력 가능합니다.");
+                return dict['id'].focus();
+            }
+            if(!check_id.test(dict['pw'].value)){
+                alert("패스워드는 영문, 숫자, 특수문자(!~&)만 입력 가능합니다.");
+                return dict['pw'].focus();
+            }
+            if(dict['pw'].value != dict['pwc'].value){
+                alert("패스워드와 패스워드 확인이 일치하지 않습니다.");
+                return dict['pwc'].focus();
+            }
+            if(!check_emailDomain.test(dict['mail_domain'].value)){
+                alert("이메일 형식이 이상합니다.");
+                return dict['mail_domain'].focus();
+            }
+            nums = new Array( "p1", "p2", "hp1", "hp2");
+            for(var i = 0; i < nums.length; i++){
+                if(!check_num.test(dict[nums[i]].value) || (nums[i]=="p1" && dict[nums[i]].value.length <3) || (nums[i] != "p1" && dict[nums[i]].value.length != 4)){
+                    alert("전화번호를 다시 입력해주세요.");
+                    return dict[nums[i]].focus();
+                }
+            }
+
+            alert("회원가입이 완료되었습니다.");
+            document.frm.submit();
+        })
+    </script>
+
+</body>
+</html>

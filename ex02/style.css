@@ -1,0 +1,65 @@
+html, body {margin: 0; padding: 0;}
+
+article {
+    text-align: center;
+}
+
+div.form_group{
+    width:960px;
+    margin:0 auto;
+    border-top:1px solid gray;
+}
+
+div.element-group{
+    display:flex;
+    border-bottom:1px solid gray;
+}
+
+span.red{
+    color:red;
+    font-weight:bold;
+}
+
+div.element-label{
+    width:200px;
+    float:left;
+    text-align:center;
+    font-size: 15px;
+    font-weight:bold;
+    padding-right:30px;
+    padding-top:10px;
+    padding-bottom:10px;
+    background-color:#eaeaea;
+}
+
+div.element{
+    float:left;
+    text-align:left;
+    padding-left:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+    width:auto;
+}
+
+select{
+    font-size:16px;
+}
+
+input {
+    font-size:16px
+}
+
+.message{
+    font-size:12px;
+    color:#333333;
+}
+
+input.phoneNumber{
+    width:40px;
+}
+
+input.button{
+    width:96px;
+    height:40px;
+    font-weight:bold;
+}
