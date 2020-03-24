@@ -28,7 +28,7 @@ p{
     margin-bottom:6px;
 }
 
-textarea{
+textarea.write-content{
     resize:none;
     margin-top:15px;
     margin-bottom:15px;
@@ -67,16 +67,18 @@ li {
     border-bottom: 1px #dddddd solid;
     padding-top:15px;
     padding-bottom:15px;
+    position:relative;
 }
 
 div.comment-nickname{
-    width:250px;
+    width:200px;
+    margin-right:50px;
     font-weight:bold;
     font-size:13px;
 }
 
 div.comment-content{
-    width:calc(100% - 550px);
+    width:400px;
     font-size:12px;
     text-align:left;
 }
@@ -122,4 +124,23 @@ input.password-button{
     width:40px;
     height:30px;
     font-size:12px;
+}
+
+div.editbox{
+    background-color:white;
+    width:700px;
+    height:100%;
+
+    display:flex;
+    align-items: center;
+
+    position:absolute;
+    /* right:0px; */
+    top:-0%;
+    z-index:10;
+}
+
+textarea.editbox{
+    width:400px;
+    margin-right:50px;
 }
