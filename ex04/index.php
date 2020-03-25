@@ -1,5 +1,5 @@
 <?php
-    // include "script.php";
+    include "script.php";
  ?>
 
 
@@ -23,10 +23,16 @@
     </div></form>
     <div class="comment-container">
         <ul>
-            <li id='cid999'>
+            <!-- <li id='cid999'>
                <div class='comment-nickname'>테스트</div>
                <div class='comment-content'>
-
+                   <div class="editbox">
+                       <textarea class="editbox" rows=4>'+pre_text+'</textarea>
+                       <div class="comment-buttons">
+                           <input type="button" onclick="edit_delete_btn(this)" class="comment-button" value="확인">
+                           <input type="button" onclick="this.closest('div.editbox').remove()" class="comment-button" value="취소">
+                       </div>
+                   </div>
                </div>
                <div class='comment-datetime'>2020-03-20 16:25:36</div>
                <div class='comment-buttons'>
@@ -36,25 +42,49 @@
            </li>
              <li id='cid999'>
                <div class='comment-nickname'>테스트</div>
-               <div class='comment-content'><p class="cmt-text">테스트입니다.</p></div>
-               <div class='comment-datetime'>2020-03-20 16:25:36</div>
+               <div class='comment-content'>테스트입니다.
+                   <div class="editbox">
+                       <textarea class="editbox" rows=4>'+pre_text+'</textarea>
+                       <div class="comment-buttons">
+                           <input type="button" onclick="edit_delete_btn(this)" class="comment-button" value="확인">
+                           <input type="button" onclick="this.closest("div.editbox").remove()" class="comment-button" value="취소">
+                       </div>
+                   </div>
+               </div>
+               <div class='comment-datetime'><p class="cmt-text">2020-03-20 16:25:36</p></div>
                <div class='comment-buttons'>
                    <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
                    <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
                </div>
             </li>
+            <li id='cid999'>
+              <div class='comment-nickname'>테스트</div>
+              <div class='comment-content'><p class="cmt-text" style="display:none">테스트입니다.</p>
+                    <textarea class="editbox" rows=4>'+pre_text+'</textarea>
+              </div>
+              <div class='comment-datetime'>
+                  <div class='comment-buttons'>
+                      <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
+                      <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
+                  </div>
+              </div>
+              <div class='comment-buttons' style="visibility:hidden">
+                  <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
+                  <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
+              </div>
+           </li> -->
             <?php
-                // $table = mysqli_query($conn,"SELECT * FROM guestbook ORDER BY id DESC");
-                // while($row = mysqli_fetch_assoc($table)){
-                //     echo "<li class='cmt' id='cid".$row["id"]."'>";
-                //     echo "<div class='comment-nickname'>".$row["nickname"]."</div>";
-                //     echo "<div class='comment-content'><p class="cmt-text">".$row["content"]."</p></div>";
-                //     echo "<div class='comment-datetime'>".$row["datetime"]."</div>";
-                //     echo "<div class='comment-buttons'>";
-                //     echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='수정'>";
-                //     echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='삭제'>";
-                //     echo "</div></li>";
-                // }
+                $table = mysqli_query($conn,"SELECT * FROM guestbook ORDER BY id DESC");
+                while($row = mysqli_fetch_assoc($table)){
+                    echo "<li class='cmt' id='cid".$row["id"]."'>";
+                    echo "<div class='comment-nickname'>".$row["nickname"]."</div>";
+                    echo "<div class='comment-content'>".$row["content"]."</div>";
+                    echo "<div class='comment-datetime'>".$row["datetime"]."</div>";
+                    echo "<div class='comment-buttons'>";
+                    echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='수정'>";
+                    echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='삭제'>";
+                    echo "</div></li>";
+                }
              ?>
         </ul>
     </div>
@@ -63,6 +93,7 @@
 <script>
     var edit_or_del = "";
 
+    // 수정or삭제 버튼 눌렀을 때의 처리
     function edit_delete_btn(target){
         var comment = target.closest("div.comment-container li");
         var cid = comment.id;
@@ -70,14 +101,12 @@
 
         var datetime_box = comment.getElementsByClassName("comment-datetime")[0];
 
-        // console.log(edit_or_del);
-
         // 패스워드박스가 이미 존재한다면 return
         if(datetime_box.getElementsByClassName("password-box")[0]){
             return;
         }
 
-        // 다른 코멘트를 체크해서 패스워드박스가 존재하고 cid가 다를 경우 패스워드박스를 제거한다
+        // 다른 코멘트들을 체크해서 패스워드박스가 존재하고 cid가 다를 경우 패스워드박스를 제거한다
         var cmt_array = $(".cmt").toArray();
         for(var i=0; i < cmt_array.length; i++){
 
@@ -89,6 +118,7 @@
             }
         }
 
+        // 수정or삭제 버튼 클릭한 코멘트에 패스워드박스 생성
         datetime_box.innerHTML = datetime_box.innerHTML + '\
             <div class="password-box">\
                 <input type="password" id="password-input" name="password" maxlength="20" placeholder="비밀번호">\
@@ -97,60 +127,95 @@
             </div>';
     }
 
+    // 패스워드 치고 [확인] 버튼 눌렀을 때의 처리
     function password_check(edit_or_del){
-        var pi = document.getElementById("password-input");
-        var cid = pi.closest("div.comment-container li").id;
-        var input_pw = pi.value;
+        var pi = $("input#password-input")[0]; // 패스워드 입력창
+        var cid = pi.closest("div.comment-container li").id; // 코멘트 id
+        var input_pw = pi.value; // input한 패스워드
 
+        // 패스워드를 입력하지 않았으면 return
         if(input_pw.length==0){
+            alert("비밀번호를 입력해주세요.");
             return;
         }
 
+        // 패스워드 체크
         $.ajax({
             url:"password.php",
             method:"POST",
             dataType: "text",
             data: {'password':input_pw, 'cid':cid.replace("cid","")},
             success:function(data){
-                var is_match = data=="true" ? true : false;
+                console.log(data);
+                var is_match = data=="true" ? true : false; //password.php의 결과값은 "ture" or "false"
                 if(!is_match){
                     alert("비밀번호가 다릅니다.");
                     return;
                 }
+                // 클릭버튼이 [삭제]일 때의 처리
                 if(edit_or_del == "삭제"){
                     if(confirm("삭제하시겠습니까?")){
+                        // confirm에서 [예] 선택 시 처리
                         $.ajax({
                             url:"delete_comment.php",
                             method:"POST",
-                            data: {'cid':cid.replace("cid","")},
+                            data: {'cid':cid.replace("cid",""),'password':input_pw},
                             success:function(data){
-                                window.location.reload();
+                                window.location.reload(); // 삭제 후 새로고침
                             }}
                         );
+                    // confirm에서 [아니오] 선택 시 세션변수 제거하고 return
                     }else{
+                        remove_session(input_pw);
                         return;
                     }
+                // 클릭버튼이 [수정]일 때의 처리
                 } else if(edit_or_del == "수정"){
-                    edit_comment(cid);
+                    edit_comment(cid, input_pw);
+                    pi.closest('div.password-box').remove();
                 }
             }
         });
     }
 
-    function edit_comment(cid){
-        var comment = document.getElementById(cid);
-        var pre_text = comment.getElementsByClassName("comment-content").innerText;
+    function edit_comment(cid, pw){
+        var comment = document.getElementById(cid); // 해당 코멘트 li
+        var pre_text = comment.getElementsByClassName("comment-content")[0].innerText; // 수정 전 텍스트
 
-        var html = '\
+        var content_box = comment.getElementsByClassName('comment-content')[0];
+
+        var editbox = $('\
         <div class="editbox">\
             <textarea class="editbox" rows=4>'+pre_text+'</textarea>\
             <div class="comment-buttons">\
-                <input type="button" onclick="edit_delete_btn(this)" class="comment-button" value="확인">\
-                <input type="button" onclick="this.closest("div.editbox").remove()" class="comment-button" value="취소">\
+                <input type="button" class="comment-button" value="확인">\
+                <input type="button" onclick="this.closest('+"'div.editbox'"+').remove();" class="comment-button" value="취소">\
             </div>\
-        </div>';
+        </div>')[0];
 
-        var content_box = comment.getElementsByClassName('comment-content');
+        content_box.append(editbox);
+
+        // [확인] 버튼에 수정기능 리스너 달기
+        editbox.getElementsByClassName("comment-button")[0].addEventListener("click",function(){
+            var new_text = $('textarea.editbox')[0].value;
+            $.ajax({
+                url:"edit_comment.php",
+                method:"POST",
+                data: {'cid':cid.replace("cid",""), 'text':new_text,'password':pw},
+                success:function(data){
+                    window.location.reload(); // 삭제 후 새로고침
+                }}
+            );
+        });
+    }
+
+    // 해당 패스워드에 해당하는 세션을 제거하는 함수
+    function remove_session(pw){
+        $.ajax({
+            url:"remove_session.php",
+            method:"POST",
+            data:{"password":pw}
+        });
     }
 </script>
 

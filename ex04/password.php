@@ -8,6 +8,6 @@
     echo $result ? 'true' : 'false';
 
     if($result == "true"){
-        $_SESSION['password'] = "valid";
+        $_SESSION["cid".$_POST["password"]] = "valid";
     }
  ?>

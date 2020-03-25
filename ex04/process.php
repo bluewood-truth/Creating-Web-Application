@@ -6,16 +6,12 @@
         exit;
     }
 
-    function filter($conn, $text){
-        return htmlspecialchars(mysqli_real_escape_string($conn,$text));
-    }
-
     $nickname = filter($conn,$_POST['nickname']);
     $password = sha1($_POST['password']);
-    $content = str_replace("\n","<br>",$_POST['content']);
-    $content = filter($conn,$content);
-
+    $content = filter($conn,$_POST['content'],true);
+    
     $sql = "INSERT INTO `guestbook` (nickname,password,content,datetime) values('".$nickname."','".$password."','".$content."',now())";
+
     mysqli_query($conn, $sql);
     header('Location:http://localhost/ex04/');
  ?>
