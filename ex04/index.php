@@ -2,12 +2,11 @@
     include "script.php";
  ?>
 
-
 <!DOCTYPE html>
 <html>
 <head>
  	<meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="http://localhost/ex04/style.css">
+    <link rel="stylesheet" type="text/css" href="http://uraman.m-hosting.kr/ex04/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body>
@@ -23,56 +22,6 @@
     </div></form>
     <div class="comment-container">
         <ul>
-            <!-- <li id='cid999'>
-               <div class='comment-nickname'>테스트</div>
-               <div class='comment-content'>
-                   <div class="editbox">
-                       <textarea class="editbox" rows=4>'+pre_text+'</textarea>
-                       <div class="comment-buttons">
-                           <input type="button" onclick="edit_delete_btn(this)" class="comment-button" value="확인">
-                           <input type="button" onclick="this.closest('div.editbox').remove()" class="comment-button" value="취소">
-                       </div>
-                   </div>
-               </div>
-               <div class='comment-datetime'>2020-03-20 16:25:36</div>
-               <div class='comment-buttons'>
-                   <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
-                   <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
-               </div>
-           </li>
-             <li id='cid999'>
-               <div class='comment-nickname'>테스트</div>
-               <div class='comment-content'>테스트입니다.
-                   <div class="editbox">
-                       <textarea class="editbox" rows=4>'+pre_text+'</textarea>
-                       <div class="comment-buttons">
-                           <input type="button" onclick="edit_delete_btn(this)" class="comment-button" value="확인">
-                           <input type="button" onclick="this.closest("div.editbox").remove()" class="comment-button" value="취소">
-                       </div>
-                   </div>
-               </div>
-               <div class='comment-datetime'><p class="cmt-text">2020-03-20 16:25:36</p></div>
-               <div class='comment-buttons'>
-                   <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
-                   <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
-               </div>
-            </li>
-            <li id='cid999'>
-              <div class='comment-nickname'>테스트</div>
-              <div class='comment-content'><p class="cmt-text" style="display:none">테스트입니다.</p>
-                    <textarea class="editbox" rows=4>'+pre_text+'</textarea>
-              </div>
-              <div class='comment-datetime'>
-                  <div class='comment-buttons'>
-                      <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
-                      <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
-                  </div>
-              </div>
-              <div class='comment-buttons' style="visibility:hidden">
-                  <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="수정">
-                  <input type="button" onclick="edit_delete_btn(this)" class='comment-button' value="삭제">
-              </div>
-           </li> -->
             <?php
                 $table = mysqli_query($conn,"SELECT * FROM guestbook ORDER BY id DESC");
                 while($row = mysqli_fetch_assoc($table)){
@@ -99,10 +48,10 @@
         var cid = comment.id;
         edit_or_del = target.value;
 
-        var datetime_box = comment.getElementsByClassName("comment-datetime")[0];
+        var datetime_box = $(comment).children(".comment-datetime")[0];
 
         // 패스워드박스가 이미 존재한다면 return
-        if(datetime_box.getElementsByClassName("password-box")[0]){
+        if($(datetime_box).children(".password-box")[0]){
             return;
         }
 
@@ -111,7 +60,7 @@
         for(var i=0; i < cmt_array.length; i++){
 
             var one_cmt = cmt_array[i];
-            var passwordbox = one_cmt.getElementsByClassName("password-box");
+            var passwordbox = $(one_cmt).children(".password-box");
 
             if(one_cmt.id != cid && passwordbox.length != 0){
                 passwordbox[0].remove();
@@ -119,12 +68,14 @@
         }
 
         // 수정or삭제 버튼 클릭한 코멘트에 패스워드박스 생성
-        datetime_box.innerHTML = datetime_box.innerHTML + '\
+        var pwbox = $('\
             <div class="password-box">\
                 <input type="password" id="password-input" name="password" maxlength="20" placeholder="비밀번호">\
                 <input type="button" class="password-button" value="확인" onclick="password_check('+"'"+edit_or_del+"'"+')">\
                 <input type="button" class="password-button" value="취소" onclick="'+"this.closest('div.password-box').remove()"+'">\
-            </div>';
+            </div>')[0];
+
+        datetime_box.append(pwbox);
     }
 
     // 패스워드 치고 [확인] 버튼 눌렀을 때의 처리
@@ -148,6 +99,7 @@
             success:function(data){
                 console.log(data);
                 var is_match = data=="true" ? true : false; //password.php의 결과값은 "ture" or "false"
+                // 비밀번호가 다르면 return
                 if(!is_match){
                     alert("비밀번호가 다릅니다.");
                     return;
@@ -179,10 +131,9 @@
     }
 
     function edit_comment(cid, pw){
-        var comment = document.getElementById(cid); // 해당 코멘트 li
-        var pre_text = comment.getElementsByClassName("comment-content")[0].innerText; // 수정 전 텍스트
-
-        var content_box = comment.getElementsByClassName('comment-content')[0];
+        var comment = $("#"+cid)[0]; // 해당 코멘트 li
+        var content_box = $(comment).children('.comment-content')[0]; // 코멘트 내용 box
+        var pre_text = content_box.innerText; // 수정 전 텍스트
 
         var editbox = $('\
         <div class="editbox">\
@@ -196,7 +147,7 @@
         content_box.append(editbox);
 
         // [확인] 버튼에 수정기능 리스너 달기
-        editbox.getElementsByClassName("comment-button")[0].addEventListener("click",function(){
+        $("#"+cid+" div.editbox .comment-button")[0].addEventListener("click",function(){
             var new_text = $('textarea.editbox')[0].value;
             $.ajax({
                 url:"edit_comment.php",
@@ -209,7 +160,7 @@
         });
     }
 
-    // 해당 패스워드에 해당하는 세션을 제거하는 함수
+    // 해당 패스워드에 해당하는 세션변수를 제거하는 함수
     function remove_session(pw){
         $.ajax({
             url:"remove_session.php",

@@ -1,7 +1,7 @@
 <?php
     session_start();
-    $conn = mysqli_connect("localhost",'root','qwer1324');
-    mysqli_select_db($conn, 'test');
+    $conn = mysqli_connect("localhost",'uraman','!Q2w3e4r');
+    mysqli_select_db($conn, 'uraman');
 
     function filter($conn, $text, $is_text=false){
         $text = htmlspecialchars($text);
