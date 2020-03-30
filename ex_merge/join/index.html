@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+ 	<meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="http://uraman.m-hosting.kr/ex_merge/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        email_list = new Array("직접 입력", "naver.com", "daum.net", "gmail.com");
+        p_list = new Array("02","051","052","053","054","055");
+        hp_list = new Array("010", "011", "016", "017");
+
+        function get_list(list){
+            for(var i = 0; i < list.length; i++){
+                document.write('<<option value="'+list[i]+'">'+list[i]+'</option>');
+            }
+        }
+    </script>
+</head>
+<body>
+    <article>
+        <h2>회원가입</h2>
+        <form id="frm" name='frm' action='create_id.php' method="post">
+        <div class="form_group">
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>아이디</div>
+                <div class="element">
+                    <input id="id" name='id' class="userinfo" type="text" maxlength=20 onkeydown="id_check_valid(false)">
+                    <input type="button" value="중복체크" onclick="id_duplicate_check()" class="userinfo" style="font-size:10px"><span style="visibility:hidden" id="id_valid_check_char">✔️</span>
+                </div>
+
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>닉네임</div>
+                <div class="element"><input id="nickname" name='nickname' class="userinfo" type="text" maxlength=20></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>비밀번호</div>
+                <div class="element"><input id="pw" name='pw' class="userinfo" type="password" maxlength=20 onchange="password_check()"><span class="message"> 영문, 숫자, 특수문자(!@#$%^&) 4~20자 입력 가능.</span></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>비밀번호 확인</div>
+                <div class="element"><input id="pwc" class="userinfo" type="password" maxlength=20 onkeyup="password_check()"><span class="message" id="msg_pwc"></span></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>이메일</div>
+                <div class="element"><input id="mail_id" name='mail_id' class="userinfo" type="text" maxlength=20>@<input id="mail_domain" name="mail_domain" class="userinfo" type="text" maxlength=20> <select id="mail_domain_select" class="userinfo"><script>get_list(email_list);</script></select></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>전화번호</div>
+                <div class="element"><select id="p0" name="p0" class="phoneNumber"><script>get_list(p_list);</script></select> - <input id="p1" name="p1" type="text" class="phoneNumber" maxlength=3> - <input id="p2" name="p2" type="text" class="phoneNumber" maxlength=4></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label"><span class="red">* </span>핸드폰번호</div>
+                <div class="element"><select id="hp0" name="hp0" class="phoneNumber"><script>get_list(hp_list);</script></select> - <input id="hp1" name="hp1" type="text" class="phoneNumber" maxlength=4> - <input id="hp2" name="hp2" type="text" class="phoneNumber" maxlength=4></div>
+            </div>
+            <div class="element-group">
+                <div class="element-label">자기소개</div>
+                <div class="element"><textarea id='txtarea' name='txtarea' rows=4 cols=50 maxlength=100>잘 부탁드립니다.</textarea></div>
+            </div>
+            <div class="message"><span class="red">*</span>표시는 필수 입력사항입니다.</div><br>
+            <input id="submitbtn" type="button" class="button" value="확인"/>
+            <input type="button" class="button" value="돌아가기" onclick="location.href='http://uraman.m-hosting.kr/ex_merge/login/'">
+        </div>
+        </form>
+    </article>
+
+    <script>
+        var id_valid = false;
+
+        $("#mail_domain_select")[0].addEventListener("change",function(){
+                domain = $("#mail_domain")[0];
+                select = $("#mail_domain_select")[0];
+
+                if(select.value == "직접 입력"){
+                    domain.value="";
+                    domain.disabled = false;
+                }else{
+                    domain.value=select.value;
+                    domain.disabled = true;
+                }
+            })
+
+        must_list = new Array("id", "pw", "pwc", "mail_id", "mail_domain", "p0", "p1", "p2", "hp0", "hp1", "hp2");
+        $("#submitbtn")[0].addEventListener("click",function(){
+            var dict = {};
+            for(var i = 0; i < must_list.length; i++){
+                tmp = $("#"+must_list[i])[0]
+                if(tmp.value.length==0){
+                    alert("필수 입력사항을 모두 입력해주세요.");
+                    return tmp.focus();
+                }
+                dict[must_list[i]] = tmp;
+            }
+
+            var check_id = /^[a-z0-9]*$/
+            var check_pw = /^[a-zA-Z0-9!@#$%^&]*$/
+            var check_emailId = /^[a-zA-Z0-9\.]*$/
+            var check_num = /^[0-9]*$/
+            var check_emailDomain = /^[a-z0-9]*\.[a-z]*[\.[a-z]*]*$/
+
+            if(!check_id.test(dict['id'].value)){
+                alert("아이디는 영문 소문자 및 숫자만 입력 가능합니다.");
+                return dict['id'].focus();
+            }
+            if(!id_valid){
+                alert("아이디 중복체크를 해주세요.");
+                return dict['id'].focus();
+            }
+            if(!check_id.test(dict['pw'].value)){
+                alert("패스워드는 영문, 숫자, 특수문자(!~&)만 입력 가능합니다.");
+
+                return dict['pw'].focus();
+            }
+            if(dict['pw'].value != dict['pwc'].value){
+                alert("패스워드와 패스워드 확인이 일치하지 않습니다.");
+                return dict['pwc'].focus();
+            }
+            if(!check_emailDomain.test(dict['mail_domain'].value)){
+                alert("이메일 형식이 이상합니다.");
+                return dict['mail_domain'].focus();
+            }
+            nums = new Array( "p1", "p2", "hp1", "hp2");
+            for(var i = 0; i < nums.length; i++){
+                if(!check_num.test(dict[nums[i]].value) || (nums[i]=="p1" && dict[nums[i]].value.length <3) || (nums[i] != "p1" && dict[nums[i]].value.length != 4)){
+                    alert("전화번호를 다시 입력해주세요.");
+                    return dict[nums[i]].focus();
+                }
+            }
+            document.frm.submit();
+        })
+
+        function password_check(){
+            var pw = $("#pw")[0].value;
+            var pwc = $("#pwc")[0].value;
+            var msg_pwc = $("#msg_pwc")[0];
+
+            if(pw != pwc){
+                msg_pwc.innerHTML = "<span style='color:red'> 비밀번호가 다릅니다.</span>";
+            } else{
+                msg_pwc.innerHTML = "<span style='color:green'> 비밀번호가 일치합니다.</span>";
+            }
+        }
+
+        function id_duplicate_check(msg=true){
+            var input_id = $("#id")[0].value;
+
+            var check_id = /^[a-z0-9]*$/;
+            if(!check_id.test(input_id)){
+                alert("아이디는 영문 소문자 및 숫자만 입력 가능합니다.");
+                return;
+            }
+
+            $.ajax({
+                url:"duplicate_check.php",
+                method:"POST",
+                data: {'id':input_id, 'check':'id'},
+                success:function(data){
+                    var is_valid = data=="true" ? true : false;
+
+                    if(is_valid){
+                        id_check_valid(true);
+                        alert("사용 가능한 ID입니다.");
+                    } else {
+                        alert("이미 사용중인 ID입니다.");
+                    }
+                }}
+            );
+        }
+
+        function id_check_valid(is_valid){
+            if(is_valid){
+                id_valid = true;
+                $("#id_valid_check_char")[0].style.visibility = "visible";
+            } else {
+                id_valid = false;
+                $("#id_valid_check_char")[0].style.visibility = "hidden";
+            }
+        }
+    </script>
+
+</body>
+</html>
