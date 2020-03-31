@@ -1,7 +1,7 @@
 <?php
     include $_SERVER["DOCUMENT_ROOT"]."/ex_merge/script.php";
 
-    $table = mysqli_query($conn,"SELECT * FROM `userinfo` WHERE id=".$_GET['data']);
+    $table = mysqli_query($conn,"SELECT * FROM `userinfo` WHERE id=".$_POST['data']);
     $row = mysqli_fetch_assoc($table);
  ?>
 

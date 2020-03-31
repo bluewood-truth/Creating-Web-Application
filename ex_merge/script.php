@@ -13,4 +13,11 @@
 
         return $text;
     }
+
+    function get_userinfo_by_id($id, $desired_item){
+        global $conn;
+        $sql = "SELECT ".$desired_item." FROM `userinfo` WHERE user_id='".$id."'";
+        $result = mysqli_query($conn,$sql);
+        return mysqli_fetch_assoc($result)[$desired_item];
+    }
 ?>

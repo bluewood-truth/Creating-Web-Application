@@ -1,5 +1,6 @@
 <?php
     include $_SERVER["DOCUMENT_ROOT"]."/ex_merge/script.php";
+    require $_SERVER["DOCUMENT_ROOT"]."/ex_merge/header.php";
  ?>
 
 <!DOCTYPE html>
@@ -14,8 +15,18 @@
 <div class="guestbook">
     <form name="guestbook_form" method="post" action="write_comment.php"><div class="write-box">
         <div class="write-box-head">
-            <p class="userinfo"><input type="text" class="userinfo" name="nickname" placeholder="닉네임" maxlength="15" required="reqired"></p>
-            <p class="userinfo"><input type="password" class="userinfo" name="password" placeholder="비밀번호" maxlength="20" required="reqired"></p>
+            <?
+                // 비회원
+                if(!isset($_SESSION['login'])){
+                    echo '<p class="userinfo"><input type="text" class="userinfo" name="nickname" placeholder="닉네임" maxlength="15" required="reqired"></p>';
+                    echo '<p class="userinfo"><input type="password" class="userinfo" name="password" placeholder="비밀번호" maxlength="20" required="reqired"></p>';
+                }
+                // // 회원
+                else{
+                    echo '<div class="comment-nickname">'.get_userinfo_by_id($_SESSION['login'],"nickname").'</div>';
+                }
+             ?>
+
             <input value="write" name="request" style="display:none">
         </div>
         <textarea class="write-content" name="content" rows="8" cols="80" required="reqired"></textarea>
@@ -27,12 +38,29 @@
                 $table = mysqli_query($conn,"SELECT * FROM guestbook ORDER BY id DESC");
                 while($row = mysqli_fetch_assoc($table)){
                     echo "<li class='cmt' id='cid".$row["id"]."'>";
-                    echo "<div class='comment-nickname'>".$row["nickname"]."</div>";
+                    echo "<div class='comment-nickname'>";
+                    echo $row["nickname"];
+                    if(!empty($row['user_id'])){
+                        echo " <span style='background-color:orange;font-size:9px;padding:2px;border-radius:3px'>회원</span>";
+                    }
+                    echo "</div>";
                     echo "<div class='comment-content'>".$row["content"]."</div>";
                     echo "<div class='comment-datetime'>".$row["datetime"]."</div>";
                     echo "<div class='comment-buttons'>";
-                    echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='수정'>";
-                    echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='삭제'>";
+                    // 회원일 때 : 자신의 댓글과 비회원의 댓글만 버튼 보임
+                    if(isset($_SESSION['login'])){
+                        if($row['user_id'] == $_SESSION['login'] || empty($row['user_id'])){
+                            echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='수정'>";
+                            echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='삭제'>";
+                        }
+                    }
+                    // 비회원일 때 : 비회원의 댓글만 버튼 보임
+                    else{
+                        if(empty($row['user_id'])){
+                            echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='수정'>";
+                            echo "<input type='button' onclick='edit_delete_btn(this)' class='comment-button' value='삭제'>";
+                        }
+                    }
                     echo "</div></li>";
                 }
              ?>
@@ -48,7 +76,6 @@
         var comment = target.closest("div.comment-container li");
         var cid = comment.id;
         edit_or_del = target.value;
-        // alert(edit_or_del);
 
         var datetime_box = $(comment).children(".comment-datetime")[0];
 
@@ -57,15 +84,48 @@
             $(datetime_box).children(".password-box")[0].remove();
         }
 
-        // 수정or삭제 버튼 클릭한 코멘트에 패스워드박스 생성
-        var pwbox = $('\
-            <div class="password-box">\
-                <input type="password" id="password-input" name="password" maxlength="20" placeholder="비밀번호">\
-                <input type="button" class="password-button" value="확인" onclick="password_check('+"'"+edit_or_del+"'"+')">\
-                <input type="button" class="password-button" value="취소" onclick="'+"this.closest('div.password-box').remove()"+'">\
-            </div>')[0];
+        var comment_id = "";
+        $.ajax({
+            url:"comment_write_user_check.php",
+            async: false,
+            method: 'POST',
+            data: {'cid':cid.replace("cid","")},
+            success:function(data){
+                comment_id = data;
+            }
+        });
 
-        datetime_box.append(pwbox);
+        // 비회원 코멘트의 경우
+        if(comment_id.length==0)    {
+            // 수정or삭제 버튼 클릭한 코멘트에 패스워드박스 생성
+            var pwbox = $('\
+                <div class="password-box">\
+                    <input type="password" id="password-input" name="password" maxlength="20" placeholder="비밀번호">\
+                    <input type="button" class="password-button" value="확인" onclick="password_check('+"'"+edit_or_del+"'"+')">\
+                    <input type="button" class="password-button" value="취소" onclick="'+"this.closest('div.password-box').remove()"+'">\
+                </div>')[0];
+
+            datetime_box.append(pwbox);
+        }
+        // 회원 코멘트의 경우
+        else {
+            if(edit_or_del == "수정"){
+                edit_comment(cid);
+            }
+            else if(edit_or_del == "삭제"){
+                if(confirm("삭제하시겠습니까?")){
+                    // confirm에서 [예] 선택 시 처리
+                    $.ajax({
+                        url:"delete_comment.php",
+                        method:"POST",
+                        data: {'cid':cid.replace("cid","")},
+                        success:function(data){
+                            window.location.reload(); // 삭제 후 새로고침
+                        }}
+                    );
+                }
+            }
+        }
     }
 
     // 패스워드 치고 [확인] 버튼 눌렀을 때의 처리
@@ -120,7 +180,7 @@
         });
     }
 
-    function edit_comment(cid, pw){
+    function edit_comment(cid, pw = ""){
         var comment = $("#"+cid)[0]; // 해당 코멘트 li
         var content_box = $(comment).children('.comment-content')[0]; // 코멘트 내용 box
         var pre_text = content_box.innerText; // 수정 전 텍스트

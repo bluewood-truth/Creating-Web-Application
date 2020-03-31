@@ -1,6 +1,7 @@
 <?php
     include $_SERVER["DOCUMENT_ROOT"]."/ex_merge/script.php";
 
+    // 로그인되어있는 상태라면 바로 방명록으로
     if(isset($_SESSION['login'])){
         header("Location:http://uraman.m-hosting.kr/ex_merge/guestbook");
     }

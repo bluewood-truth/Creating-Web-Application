@@ -13,6 +13,30 @@ article {
     -webkit-box-sizing: border-box;
 }
 
+/* ========================================================
+header
+======================================================== */
+#header-box{
+    border-bottom:1px solid gray;
+    /* min-height:80px; */
+}
+
+#header{
+    width:960px;
+    margin:5px auto;
+    text-align:right;
+
+    font-size:12px;
+}
+
+.button-header-mini{
+    font-size:12px;
+    border-radius: 3px;
+    border: 1px solid gray;
+    background-color: #555555;
+    color: #ffffff;
+}
+
 
 
 /* ========================================================
@@ -137,6 +161,7 @@ div.write-box {
 
 div.write-box-head {
     margin-top:15px;
+    min-width: 176px;
 }
 
 p.userinfo{

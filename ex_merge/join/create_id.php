@@ -1,12 +1,18 @@
 <?php
     include $_SERVER["DOCUMENT_ROOT"]."/ex_merge/script.php";
 
+    // foreach($_POST as $key => $value){
+    //     echo "<br>".$key." : ".$value."/".(empty($value) ? 0 : 1);
+    // }
+
     // 필수항목이 빈칸이면 메인 화면으로
     $necessary = array($_POST['id'], $_POST['pw'], $_POST['nickname'],$_POST['mail_id'], $_POST['mail_domain'], $_POST['hp0'], $_POST['hp1'], $_POST['hp2']);
     foreach ($necessary as $item) {
         if(empty($item)){
+            echo "<br>".$item;
             header('Location:http://uraman.m-hosting.kr/ex_merge/');
             exit;
+            // echo "1";
         }
     }
 
@@ -26,8 +32,8 @@
     if(!empty($result)){
         header('Location:http://uraman.m-hosting.kr/ex_merge/');
         exit;
+        // echo "2";
     }
-
 
     $sql = "INSERT INTO `userinfo` (user_id, nickname, password, email, phone_number, mobile_number, comment, join_date)
             VALUES('".$id."','".$nickname."','".$password."','".$email."','".$phone_number."','".$mobile_number."','".$comment."',now())";
